@@ -70,7 +70,8 @@ model = ExponentialSmoothing(
     damped_trend=True,
     seasonal="mul",
     seasonal_periods=168,
-    initialization_method="estimated"
+    initialization_method="estimated",
+    use_boxcox=True
 )
 
 
@@ -82,8 +83,9 @@ the model adapts to recent changes while retaining information from the past.
 """
 
 #modelFit = model.fit(optimized=True)
-modelFit = model.fit(optimized=True, use_boxcox=True, use_brute=True)
-
+#modelFit = model.fit(optimized=True, use_boxcox=True, use_brute=True)
+#Move boxcox into the model contructor
+modelFit = model.fit(optimized=True, use_brute=True)
 
 # Generate forecasts
 """
@@ -95,7 +97,8 @@ which corresponds to 744 total hours.
 """
 
 #pred = modelFit.forecast(744)
-pred = np.asarray(modelFit.forecast(744))
+#pred = np.asarray(modelFit.forecast(744))
+pred = np.asarray(modelFit.forecast(744), dtype=float)
 
 # Convert to a NumPy array to ensure compatibility with grading tests
 pred = np.asarray(pred)
