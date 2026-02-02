@@ -34,7 +34,7 @@ train = train.sort_values("Timestamp")
 test = test.sort_values("Timestamp")
 
 # Dependent variable = trips
-y = train["trips"].astype(float)
+y = train.set_index("Timestamp")["trips"].astype(float).asfreq("h")
 
 
 # Model definition (Lesson 1)
@@ -57,11 +57,20 @@ which explicitly models:
 
 # Define the Holt-Winters Exponential Smoothing model
 # Seasonal period = 168 hours (24 hours × 7 days) to capture weekly seasonality
+#model = ExponentialSmoothing(
+#    y,
+#    trend="add",
+#    seasonal="add",
+#    seasonal_periods=168
+#)
+
 model = ExponentialSmoothing(
     y,
     trend="add",
-    seasonal="add",
-    seasonal_periods=168
+    damped_trend=True,
+    seasonal="mul",
+    seasonal_periods=168,
+    initialization_method="estimated"
 )
 
 
@@ -72,7 +81,8 @@ to optimize them based on the observed data. This determines how quickly
 the model adapts to recent changes while retaining information from the past.
 """
 
-modelFit = model.fit(optimized=True)
+#modelFit = model.fit(optimized=True)
+modelFit = model.fit(optimized=True, use_boxcox=True, use_brute=True)
 
 
 # Generate forecasts
@@ -84,7 +94,8 @@ The assignment requires forecasts for each hour in January of the following year
 which corresponds to 744 total hours.
 """
 
-pred = modelFit.forecast(744)
+#pred = modelFit.forecast(744)
+pred = np.asarray(modelFit.forecast(744))
 
 # Convert to a NumPy array to ensure compatibility with grading tests
 pred = np.asarray(pred)
